@@ -39,6 +39,12 @@ THE SOFTWARE.
           </j:forEach>
         </j:forEach>
         <td class="stop" style="text-align:left;">
+          <a href="#" class="copyfrom">
+          	<img title="Copy all checkmarks..." alt="Copy from" src="${imagesURL}/16x16/star.gif" height="16" width="16"/>
+          </a>
+          <a href="#" class="copyto" style="display:none">
+          	<img title="... to this row" alt="Copy to" src="${imagesURL}/16x16/text.png" height="16" width="16"/>
+          </a>
           <a href="#" class="toggleall">
             <img alt="${%Toggle all}" src="${imagesURL}/16x16/edit-select-all.png" height="16" width="16"/>
           </a>
@@ -78,7 +84,7 @@ THE SOFTWARE.
         <j:forEach var="g" items="${groups}">
           <j:forEach var="p" items="${g.permissions}">
             <j:if test="${descriptor.showPermission(p)}">
-              <th class="pane" tooltip="${p.description}">
+              <th class="pane" tooltip="${p.description} [ Implied by ${p.impliedBy.group.title}.${p.impliedBy.name} ]">
                 ${p.name}
               </th>
             </j:if>
@@ -118,7 +124,7 @@ THE SOFTWARE.
         var master = document.getElementById('${id}');
         var table = master.parentNode;
         table.removeChild(master);
-      
+
         makeButton($$('${id}button'), function (e) {
           <!-- when 'add' is clicked... -->
           var name = $$('${id}text').value;
@@ -141,9 +147,39 @@ THE SOFTWARE.
           copy.setAttribute("name",'['+name+']');
           table.appendChild(copy);
           Behaviour.applySubtree(findAncestor(table,"TABLE"),true);
+          jQuery(".permission-row:nth-child(odd)").find("td").css("background-color","#f0f0f0");
         });
       })();
+	  jQuery(".permission-row:nth-child(odd)").find("td").css("background-color","#f0f0f0");
+	  Behaviour.specify("#${strategyid} TD.stop A.copyfrom",'GlobalMatrixAuthorizationStrategy', 0, function(e) {
+		e.onclick= function() {
+			var tr=findAncestor(this,"TR");
+			window.copyRowFrom=tr;
+			jQuery("A.copyto").show();
+			jQuery("A.copyfrom").hide();
+			jQuery(tr).find(".copyto").hide();
+			jQuery(tr).find(".copyfrom").find("img").attr("src","${imagesURL}/16x16/star-gold.gif");
+			jQuery(tr).find(".copyfrom").show();
+			return false;
+		}
+		e=null;
+	  });
+	  Behaviour.specify("#${strategyid} TD.stop A.copyto",'GlobalMatrixAuthorizationStrategy', 0, function(e) {
+		e.onclick= function() {
+			var tr=findAncestor(this,"TR");
+			console.log("... copy "+window.copyRowFrom);
 
+			jQuery(tr).find("input").each(function(i,el) {
+		        var original=jQuery(window.copyRowFrom).find("input[name='"+el.name+"']").prop("checked");
+			    jQuery(el).prop("checked",original);
+			});
+			jQuery("A.copyto").hide();
+			jQuery("A.copyfrom").show();
+			jQuery(window.copyRowFrom).find(".copyfrom").find("img").attr("src","${imagesURL}/16x16/star.gif");
+			return false;
+		}
+		e=null;
+	  });
       Behaviour.specify("#${strategyid} TD.stop A.remove", 'GlobalMatrixAuthorizationStrategy', 0, function(e) {
           e.onclick = function() {
             var tr = findAncestor(this,"TR");

@@ -1,18 +1,18 @@
 /*
  * The MIT License
- * 
+ *
  * Copyright (c) 2004-2009, Sun Microsystems, Inc., Kohsuke Kawaguchi, Yahoo! Inc., Seiji Sogabe, Tom Huybrechts
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -31,13 +31,19 @@ import hudson.model.ItemGroup;
 import hudson.model.Job;
 import hudson.util.RobustReflectionConverter;
 import hudson.Extension;
+
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.converters.UnmarshallingContext;
 import com.thoughtworks.xstream.mapper.Mapper;
 import com.thoughtworks.xstream.core.JVM;
-import org.jenkinsci.plugins.matrixauth.Messages;
 
+import org.jenkinsci.plugins.matrixauth.Messages;
+import org.jvnet.localizer.Localizable;
+import org.jvnet.localizer.ResourceBundleHolder;
+
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -49,7 +55,9 @@ import java.util.Set;
  * @author Kohsuke Kawaguchi
  */
 public class ProjectMatrixAuthorizationStrategy extends GlobalMatrixAuthorizationStrategy {
-    @Override
+
+
+	@Override
     public ACL getACL(Job<?,?> project) {
         AuthorizationMatrixProperty amp = project.getProperty(AuthorizationMatrixProperty.class);
         if (amp != null) {
@@ -91,6 +99,7 @@ public class ProjectMatrixAuthorizationStrategy extends GlobalMatrixAuthorizatio
             return new ProjectMatrixAuthorizationStrategy();
         }
 
+
         @Override
         public String getDisplayName() {
             return Messages.ProjectMatrixAuthorizationStrategy_DisplayName();
@@ -103,6 +112,7 @@ public class ProjectMatrixAuthorizationStrategy extends GlobalMatrixAuthorizatio
         public ConverterImpl(Mapper m) {
             ref = new RobustReflectionConverter(m,new JVM().bestReflectionProvider());
         }
+
 
         @Override
         protected GlobalMatrixAuthorizationStrategy create() {

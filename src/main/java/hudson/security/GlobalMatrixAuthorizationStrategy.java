@@ -1,18 +1,18 @@
 /*
  * The MIT License
- * 
+ *
  * Copyright (c) 2004-2010, Sun Microsystems, Inc., Kohsuke Kawaguchi, Yahoo! Inc.
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -28,6 +28,7 @@ import com.thoughtworks.xstream.converters.MarshallingContext;
 import com.thoughtworks.xstream.converters.UnmarshallingContext;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
+
 import hudson.diagnosis.OldDataMonitor;
 import hudson.model.Descriptor;
 import jenkins.model.Jenkins;
@@ -40,6 +41,7 @@ import hudson.Functions;
 import hudson.Extension;
 import hudson.model.User;
 import net.sf.json.JSONObject;
+
 import org.acegisecurity.AuthenticationException;
 import org.acegisecurity.userdetails.UsernameNotFoundException;
 import org.acegisecurity.acls.sid.Sid;
@@ -50,6 +52,7 @@ import org.kohsuke.stapler.QueryParameter;
 import org.springframework.dao.DataAccessException;
 
 import javax.servlet.ServletException;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -73,6 +76,9 @@ import java.util.TreeMap;
 // TODO: think about the concurrency commitment of this class
 public class GlobalMatrixAuthorizationStrategy extends AuthorizationStrategy {
     private transient SidACL acl = new AclImpl();
+
+    public static final PermissionGroup REPLACE_GROUP = new PermissionGroup(ProjectMatrixAuthorizationStrategy.class,Messages._GlobalMatrixAuthorizationStrategy_ReplacePermission());
+    public static final Permission PERMISSION_REPLACE = new Permission(REPLACE_GROUP, "Replace", Messages._GlobalMatrixAuthorizationStrategy_ReplacePermission(), null, PermissionScope.ITEM);
 
     /**
      * List up all permissions that are granted.
@@ -244,7 +250,7 @@ public class GlobalMatrixAuthorizationStrategy extends AuthorizationStrategy {
             return new GlobalMatrixAuthorizationStrategy();
         }
     }
-    
+
     public static class DescriptorImpl extends Descriptor<AuthorizationStrategy> {
         protected DescriptorImpl(Class<? extends GlobalMatrixAuthorizationStrategy> clazz) {
             super(clazz);
@@ -287,6 +293,7 @@ public class GlobalMatrixAuthorizationStrategy extends AuthorizationStrategy {
         public List<PermissionGroup> getAllGroups() {
             List<PermissionGroup> groups = new ArrayList<PermissionGroup>(PermissionGroup.getAll());
             groups.remove(PermissionGroup.get(Permission.class));
+            groups.remove(REPLACE_GROUP);
             return groups;
         }
 

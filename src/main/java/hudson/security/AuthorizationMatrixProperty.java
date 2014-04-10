@@ -1,18 +1,18 @@
 /*
  * The MIT License
- * 
+ *
  * Copyright (c) 2004-2010, Sun Microsystems, Inc., Kohsuke Kawaguchi, Yahoo! Inc., Peter Hayes, Tom Huybrechts
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -73,7 +73,7 @@ public class AuthorizationMatrixProperty extends JobProperty<Job<?, ?>> {
 
 	/**
 	 * List up all permissions that are granted.
-	 * 
+	 *
 	 * Strings are either the granted authority or the principal, which is not
 	 * distinguished.
 	 */
@@ -96,7 +96,7 @@ public class AuthorizationMatrixProperty extends JobProperty<Job<?, ?>> {
 
 	/**
 	 * Returns all SIDs configured in this matrix, minus "anonymous"
-	 * 
+	 *
 	 * @return Always non-null.
 	 */
 	public List<String> getAllSIDs() {
@@ -188,9 +188,15 @@ public class AuthorizationMatrixProperty extends JobProperty<Job<?, ?>> {
 
 	private final class AclImpl extends SidACL {
 		protected Boolean hasPermission(Sid sid, Permission p) {
-			if (AuthorizationMatrixProperty.this.hasPermission(toString(sid),p))
+			boolean replacePresent=AuthorizationMatrixProperty.this.hasPermission(toString(sid), GlobalMatrixAuthorizationStrategy.PERMISSION_REPLACE);
+			boolean permissionGranted=AuthorizationMatrixProperty.this.hasPermission(toString(sid),p);
+			if (permissionGranted){
 				return true;
-			return null;
+			}
+			if (replacePresent) {
+				return false;
+			}
+			return true;
 		}
 	}
 
@@ -217,7 +223,7 @@ public class AuthorizationMatrixProperty extends JobProperty<Job<?, ?>> {
         Set<String> set = grantedPermissions.get(p);
         return set != null && set.contains(sid);
     }
-    
+
     /**
      * Works like {@link #add(Permission, String)} but takes both parameters
      * from a single string of the form <tt>PERMISSIONID:sid</tt>
